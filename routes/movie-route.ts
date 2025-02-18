@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
-import Movie from "../models/movie";
-import { authenticateUser } from "./auth";
+import Movie from "../models/movie-model";
+import { authenticateUser } from "./auth-route";
 
 const router = express.Router();
 

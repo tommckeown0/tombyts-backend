@@ -1,9 +1,10 @@
 import express from "express";
 import connectDB from "../config/database";
-import movieRoutes from "../routes/movies";
-import userRoutes from "../routes/users";
-import loginRoutes from "../routes/auth";
-import progressRoutes from "../routes/progress";
+import movieRoutes from "../routes/movie-route";
+import userRoutes from "../routes/user-route";
+import loginRoutes from "../routes/auth-route";
+import progressRoutes from "../routes/progress-route";
+import subtitleRoutes from "../routes/subtitle-route"
 import dotenv from "dotenv";
 import cors from "cors";
 import https from "https";
@@ -34,6 +35,7 @@ app.use(express.json());
 app.use("/movies", movieRoutes);
 app.use("/users", userRoutes);
 app.use("/media", express.static("C:\\Users\\tommc\\Documents\\Torrents"));
+app.use("/media", subtitleRoutes);
 app.use("/progress", progressRoutes);
 
 app.get("/", (req, res) => {

@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import connectDB from "../config/database";
-import Movie from "../models/movie";
+import Movie from "../models/movie-model";
 import mongoose from "mongoose";
 
 const supportedExtensions = [".mp4", ".mkv", ".avi"]; // Add more if needed

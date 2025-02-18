@@ -7,7 +7,7 @@
         "scan": "ts-node scripts/scanMovies.ts",
         "build": "tsc",
         "start": "node dist/src/index.js",
-        "build-start": "npm run build && npm start",
+        "a": "npm run build && npm start",
         "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
     },
     "keywords": [],

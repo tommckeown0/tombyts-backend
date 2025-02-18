@@ -1,7 +1,7 @@
 // File: backend/routes/progress.ts
 import express, { Request, Response } from "express";
-import { authenticateUser } from "./auth";
-import Progress from "../models/progress";
+import { authenticateUser } from "./auth-route";
+import Progress from "../models/progress-model";
 
 const router = express.Router();
 
