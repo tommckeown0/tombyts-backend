@@ -4,6 +4,7 @@ import Movie from "../models/movie-model";
 import { authenticateUser } from "./auth-route";
 import path from "path";
 import fs from "fs";
+import { Config } from "../src/config";
 
 const router = express.Router();
 
@@ -66,7 +67,7 @@ router.get(
 				return res.status(404).json({ message: "Subtitle not found" });
 			}
 
-			const baseDir = "C:\\Users\\tommc\\Documents\\Torrents";
+			const baseDir = Config.torrentsDir;
 			const fullPath = path.join(baseDir, subtitle.path);
 
 			// Check if file exists

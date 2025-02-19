@@ -1,34 +1,90 @@
+import fs from "fs/promises";
+import path from "path";
+import connectDB from "../config/database";
+import Movie from "../models/movie-model";
+import Subtitle from "../models/subtitle-model"; // Import the Subtitle model
 import mongoose from "mongoose";
-import Subtitle from "../models/subtitle-model"; // Adjust the path if needed
-import connectDB from "../config/database"; // Adjust the path if needed
+import { Config } from "../src/config";
 
-async function populateSubtitles() {
+const torrentsDir = Config.torrentsDir;
+
+type ScanSubtitlesFunction = (directoryPath?: string) => Promise<void>;
+
+(async () => {
 	try {
-		await connectDB(); // Connect to the database
+		await connectDB();
+		const scanSubtitles: ScanSubtitlesFunction = async (
+			directoryPath = torrentsDir
+		) => {
+			try {
+				const files = await fs.readdir(directoryPath);
 
-		// Example subtitle entries
-		const subtitles = [
-			{
-				movieTitle: "Dune.Part.Two.2024.1080p.WEBRip.x264.AAC-[YTS.MX]",
-				path: "Dune Part Two (2024) [1080p] [WEBRip] [YTS.MX]\\Dune.Part.Two.2024.1080p.WEBRip.x264.AAC-[YTS.MX].srt",
-				language: "en",
-			},
-			{
-				movieTitle: "test",
-				path: "test.srt",
-				language: "en",
-			},
-		];
+				for (const file of files) {
+					const filePath = path.join(directoryPath, file);
+					const stats = await fs.stat(filePath);
 
-		// Insert the subtitles into the database
-		await Subtitle.insertMany(subtitles);
+					if (
+						stats.isFile() &&
+						path.extname(file).toLowerCase() === ".srt"
+					) {
+						const title = path.basename(file, ".srt");
 
-		console.log("Subtitles populated successfully!");
-	} catch (err) {
-		console.error("Error populating subtitles:", err);
-	} finally {
-		mongoose.disconnect(); // Disconnect from the database
+						// Check if a movie with the same title exists
+						const movie = await Movie.findOne({ title });
+
+						if (movie) {
+							// Correctly calculate relative path from the root torrentsDir
+							const relativePath = path.relative(
+								torrentsDir,
+								filePath
+							);
+
+							// Check if the subtitle already exists
+							const existingSubtitle = await Subtitle.findOne({
+								movieTitle: title,
+								language: "en", // Assuming language is always 'en'
+							});
+
+							if (!existingSubtitle) {
+								await Subtitle.create({
+									movieTitle: title,
+									path: relativePath,
+									language: "en",
+								});
+								console.log(
+									`Subtitle "${title}.srt" added for movie "${title}".`
+								);
+							} else {
+								console.log(
+									`Subtitle "${title}.srt" already exists.`
+								);
+							}
+						} else {
+							console.log(
+								`Movie with title "${title}" not found. Subtitle not added.`
+							);
+						}
+					} else if (stats.isDirectory()) {
+						await scanSubtitles(filePath); // Recursively scan subdirectories
+					}
+				}
+			} catch (error) {
+				console.error("Error scanning subtitles:", error);
+			}
+		};
+
+		await scanSubtitles();
+
+		// Log how many subtitles were added
+		const subtitleCount = await Subtitle.countDocuments();
+		console.log(
+			`Successfully added/verified ${subtitleCount} subtitles to the database.`
+		);
+
+		mongoose.connection.close();
+		console.log("Database connection closed.");
+	} catch (error) {
+		console.error("Error connecting to the database:", error);
+		process.exit(1);
 	}
-}
-
-populateSubtitles();
+})();
