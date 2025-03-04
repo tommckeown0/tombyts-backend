@@ -5,6 +5,7 @@ import { authenticateUser } from "./auth-route";
 import path from "path";
 import fs from "fs";
 import { Config } from "../src/config";
+import srt2vtt from "srt-to-vtt";
 
 const router = express.Router();
 
@@ -72,7 +73,8 @@ router.get(
 
 			// Check if file exists
 			if (fs.existsSync(fullPath)) {
-				res.sendFile(fullPath);
+				res.setHeader("Content-Type", "text/vtt");
+				fs.createReadStream(fullPath).pipe(srt2vtt()).pipe(res);
 			} else {
 				res.status(404).json({
 					message: "Subtitle file not found on disk",
