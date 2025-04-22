@@ -41,3 +41,5 @@ Thumbs.db
 # exclude those directories.
 /build/
 /out/
+
+/certs

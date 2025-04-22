@@ -24,8 +24,8 @@ if (isWindows) {
 	keyPath = "C:\\Users\\tommc\\Documents\\certs\\key.pem";
 	certPath = "C:\\Users\\tommc\\Documents\\certs\\cert.pem";
 } else {
-	keyPath = "/app/certs/key.pem";
-	certPath = "/app/certs/cert.pem";
+	keyPath = "/home/tom/tombyts-backend/certs/key.pem";
+	certPath = "/home/tom/tombyts-backend/certs/cert.pem";
 }
 
 app.use(cors());
@@ -39,20 +39,19 @@ app.use("/users", userRoutes);
 app.use("/media", express.static(Config.torrentsDir));
 app.use("/subs", subtitleRoutes);
 app.use("/progress", progressRoutes);
+app.use("/auth", loginRoutes);
 
 app.get("/", (req, res) => {
 	res.json("Hello from TypeScript and Express!");
 });
-
-app.use("/auth", loginRoutes);
 
 const options = {
 	key: fs.readFileSync(keyPath),
 	cert: fs.readFileSync(certPath),
 };
 
-https.createServer(options, app).listen(PORT, () => {
-	console.log(`Server running on https://localhost:${PORT}`);
+https.createServer(options, app).listen({port: Number(PORT), host: "0.0.0.0"}, () => {
+	console.log(`Server running on https://0.0.0.0:${PORT}`);
 });
 
 // app.listen(PORT, () => {
