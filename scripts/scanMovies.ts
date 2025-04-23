@@ -37,10 +37,12 @@ type ScanMoviesFunction = (directoryPath?: string) => Promise<void>;
 							filePath
 						);
 
+						const normalizedPath = relativePath.replace(/\\/g, "/");
+
 						// Check if the movie already exists in the database
 						const existingMovie = await Movie.findOne({ title });
 						if (!existingMovie) {
-							await Movie.create({ title, path: relativePath });
+							await Movie.create({ title, path: normalizedPath });
 							console.log(
 								`Movie "${title}" added to the database.`
 							);

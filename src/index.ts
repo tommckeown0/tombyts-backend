@@ -28,6 +28,16 @@ if (isWindows) {
 	certPath = "/home/tom/tombyts-backend/certs/cert.pem";
 }
 
+const movieBasePathWin =
+	process.env.MOVIE_BASE_PATH_WIN ||
+	"C:\\Users\\tommc\\Documents\\Torrents\\tombyfiles";
+const movieBasePathLinux =
+	process.env.MOVIE_BASE_PATH_LINUX || "/mnt/windows_share";
+const mediaBasePath = isWindows ? movieBasePathWin : movieBasePathLinux;
+
+console.log(`Server OS detected as: ${process.platform}`);
+console.log(`Serving static media from: ${mediaBasePath}`);
+
 app.use(cors());
 
 connectDB();
@@ -36,7 +46,7 @@ app.use(express.json());
 
 app.use("/movies", movieRoutes);
 app.use("/users", userRoutes);
-app.use("/media", express.static(Config.torrentsDir));
+app.use("/media", express.static(mediaBasePath));
 app.use("/subs", subtitleRoutes);
 app.use("/progress", progressRoutes);
 app.use("/auth", loginRoutes);
@@ -50,9 +60,11 @@ const options = {
 	cert: fs.readFileSync(certPath),
 };
 
-https.createServer(options, app).listen({port: Number(PORT), host: "0.0.0.0"}, () => {
-	console.log(`Server running on https://0.0.0.0:${PORT}`);
-});
+https
+	.createServer(options, app)
+	.listen({ port: Number(PORT), host: "0.0.0.0" }, () => {
+		console.log(`Server running on https://0.0.0.0:${PORT}`);
+	});
 
 // app.listen(PORT, () => {
 //     console.log(`Server running on http://localhost:${PORT}`);
