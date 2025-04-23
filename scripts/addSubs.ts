@@ -39,6 +39,11 @@ type ScanSubtitlesFunction = (directoryPath?: string) => Promise<void>;
 								filePath
 							);
 
+							const normalizedPath = relativePath.replace(
+								/\\/g,
+								"/"
+							);
+
 							// Check if the subtitle already exists
 							const existingSubtitle = await Subtitle.findOne({
 								movieTitle: title,
@@ -48,7 +53,7 @@ type ScanSubtitlesFunction = (directoryPath?: string) => Promise<void>;
 							if (!existingSubtitle) {
 								await Subtitle.create({
 									movieTitle: title,
-									path: relativePath,
+									path: normalizedPath,
 									language: "en",
 								});
 								console.log(

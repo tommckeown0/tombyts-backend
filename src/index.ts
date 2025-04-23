@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import https from "https";
 import fs from "fs";
-import { Config } from "./config";
 
 dotenv.config();
 
