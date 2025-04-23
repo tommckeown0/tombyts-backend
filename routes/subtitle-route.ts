@@ -4,10 +4,18 @@ import Movie from "../models/movie-model";
 import { authenticateUser } from "./auth-route";
 import path from "path";
 import fs from "fs";
-import { Config } from "../src/config";
 import srt2vtt from "srt-to-vtt";
+import process from "process";
 
 const router = express.Router();
+const isWindows = process.platform === "win32";
+
+const movieBasePathWin =
+	process.env.MOVIE_BASE_PATH_WIN ||
+	"C:\\Users\\tommc\\Documents\\Torrents\\tombyfiles";
+const movieBasePathLinux =
+	process.env.MOVIE_BASE_PATH_LINUX || "/mnt/windows_share"; // Your Ubuntu mount point
+const mediaBasePath = isWindows ? movieBasePathWin : movieBasePathLinux;
 
 // Get all subtitles
 router.get(
@@ -68,8 +76,7 @@ router.get(
 				return res.status(404).json({ message: "Subtitle not found" });
 			}
 
-			const baseDir = Config.torrentsDir;
-			const fullPath = path.join(baseDir, subtitle.path);
+			const fullPath = path.join(mediaBasePath, subtitle.path);
 
 			// Check if file exists
 			if (fs.existsSync(fullPath)) {
